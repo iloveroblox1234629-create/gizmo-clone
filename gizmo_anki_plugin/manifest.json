@@ -1,0 +1,15 @@
+{
+  "package": "Gizmo AI",
+  "name": "gizmo_anki_plugin",
+  "version": "0.1.0",
+  "min_point_version": 45,
+  "max_point_version": 59,
+  "human_version": "0.1.0",
+  "python_requires": ">=3.9",
+  "description": "AI-powered flashcard generation, tutor grading, and gamification for Anki",
+  "author": "Gizmo Team",
+  "homepage": "https://github.com/anomalyco/gizmo",
+  "license": "MIT",
+  "config": true,
+  "config_gui": "gizmo_anki_plugin.src.dialog:ConfigDialog"
+}

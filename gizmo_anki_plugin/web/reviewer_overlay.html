@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+        }
+        #gizmo-overlay {
+            position: fixed;
+            padding: 10px 14px;
+            background: rgba(40, 40, 40, 0.92);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            transition: opacity 0.2s;
+            min-width: 140px;
+        }
+        #gizmo-overlay.top-left { top: 10px; left: 10px; }
+        #gizmo-overlay.top-right { top: 10px; right: 10px; }
+        #gizmo-overlay.bottom-left { bottom: 10px; left: 10px; }
+        #gizmo-overlay.bottom-right { bottom: 10px; right: 10px; }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px 0;
+        }
+
+        .stat-icon { font-size: 14px; }
+        .stat-label { color: #aaa; font-size: 11px; margin-right: 4px; }
+        .stat-value { color: #fff; font-weight: bold; }
+
+        /* Lives with hearts */
+        #lives { color: #e74c3c; }
+
+        /* Level */
+        #level { color: #f1c40f; }
+
+        /* Streak */
+        #streak { color: #e67e22; }
+
+        /* XP bar */
+        .xp-container {
+            margin-top: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .xp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .xp-text {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        /* Game over overlay */
+        #game-over {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        #game-over h1 {
+            font-size: 48px;
+            margin: 0;
+            color: #e74c3c;
+        }
+        #game-over p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        #game-over button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #game-over button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gamification overlay (controlled from Python) -->
+    <div id="gizmo-overlay" class="top-right">
+        <div class="stat-row">
+            <span class="stat-icon" id="lives">❤️ <span id="lives-val">3</span></span>
+            <span class="stat-label">Lives</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-icon" id="level">⭐ Lvl <span id="level-val">1</span></span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-icon" id="streak">🔥 <span id="streak-val">0</span>d</span>
+        </div>
+        <div class="xp-container">
+            <div class="xp-bar" id="xp-bar" style="width: 0%"></div>
+        </div>
+        <div class="xp-text" id="xp-text">0 / 100 XP</div>
+    </div>
+
+    <!-- Game over screen -->
+    <div id="game-over">
+        <h1>💀 Game Over</h1>
+        <p>You've run out of lives!</p>
+        <p id="session-stats"></p>
+        <button onclick="closeGameOver()">Continue</button>
+    </div>
+
+    <script>
+        // Update stats display
+        function updateGizmoStats(stats) {
+            document.getElementById('lives-val').textContent = stats.lives;
+            document.getElementById('level-val').textContent = stats.level;
+            document.getElementById('streak-val').textContent = stats.streak;
+
+            const xpPercent = (stats.xp / (stats.level * 100)) * 100;
+            document.getElementById('xp-bar').style.width = xpPercent + '%';
+            document.getElementById('xp-text').textContent =
+                `${stats.xp} / ${stats.level * 100} XP`;
+
+            // Color based on lives
+            const hearts = document.getElementById('lives');
+            if (stats.lives <= 1) {
+                hearts.style.color = '#e74c3c';
+            } else {
+                hearts.style.color = '';
+            }
+        }
+
+        // Position overlay (called from Python)
+        function positionOverlay(position) {
+            const el = document.getElementById('gizmo-overlay');
+            el.className = ''; // clear
+            el.classList.add(position);
+        }
+
+        // Show/hide overlay
+        function showOverlay(show) {
+            document.getElementById('gizmo-overlay').style.display = show ? 'block' : 'none';
+        }
+
+        // Game over
+        function showGameOver(stats) {
+            document.getElementById('game-over').style.display = 'flex';
+            document.getElementById('session-stats').textContent =
+                `Cards: ${stats.total} | Level: ${stats.level}`;
+        }
+
+        function closeGameOver() {
+            document.getElementById('game-over').style.display = 'none';
+        }
+
+        // Bridge to Python
+        window.gizmoBridge = {
+            updateStats: updateGizmoStats,
+            position: positionOverlay,
+            showOverlay: showOverlay,
+            showGameOver: showGameOver
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gizmo AI Configuration",
+  "type": "object",
+  "properties": {
+    "ai_enabled": {
+      "type": "boolean",
+      "description": "Enable AI-powered flashcard generation"
+    },
+    "tutor_enabled": {
+      "type": "boolean",
+      "description": "Enable AI tutor for semantic grading during review"
+    },
+    "gamification_enabled": {
+      "type": "boolean",
+      "description": "Enable lives, streaks, and XP gamification features"
+    },
+    "gemini_api_key": {
+      "type": "string",
+      "description": "Google AI API key for Gemini"
+    },
+    "openai_api_key": {
+      "type": "string",
+      "description": "OpenAI API key for GPT models"
+    },
+    "ai_model": {
+      "type": "string",
+      "enum": ["gemini", "gpt-4", "gpt-3.5-turbo"],
+      "description": "Preferred AI model for generation"
+    },
+    "tutor_feedback": {
+      "type": "boolean",
+      "description": "Show detailed AI tutor feedback after each answer"
+    },
+    "start_with_lives": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Starting lives per review session"
+    },
+    "xp_per_correct": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "XP earned for correct answer"
+    },
+    "xp_per_hard": {
+      "type": "integer",
+      "description": "XP earned for hard answer"
+    },
+    "streak_bonus_multiplier": {
+      "type": "number",
+      "minimum": 1.0,
+      "maximum": 5.0,
+      "description": "Multiplier for daily streak bonuses"
+    },
+    "overlay_position": {
+      "type": "string",
+      "enum": ["top-left", "top-right", "bottom-left", "bottom-right"],
+      "description": "Position of gamification overlay in reviewer"
+    }
+  }
+}

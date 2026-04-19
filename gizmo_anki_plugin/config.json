@@ -1,0 +1,14 @@
+{
+  "ai_enabled": true,
+  "tutor_enabled": true,
+  "gamification_enabled": true,
+  "gemini_api_key": "",
+  "openai_api_key": "",
+  "ai_model": "gemini",
+  "tutor_feedback": true,
+  "start_with_lives": 3,
+  "xp_per_correct": 10,
+  "xp_per_hard": 5,
+  "streak_bonus_multiplier": 1.5,
+  "overlay_position": "top-right"
+}
