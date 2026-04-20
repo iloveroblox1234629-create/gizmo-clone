@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createModel } from '@/lib/ai';
 
 function extractVideoId(url: string): string | null {
   const patterns = [
@@ -94,20 +93,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    let model;
-    if (geminiKey || process.env.GEMINI_API_KEY) {
-      const google = createGoogleGenerativeAI({
-        apiKey: geminiKey || process.env.GEMINI_API_KEY,
-      });
-      model = google('gemini-2.5-flash-lite');
-    } else if (openaiKey || process.env.OPENAI_API_KEY) {
-      const openai = createOpenAI({
-        apiKey: openaiKey || process.env.OPENAI_API_KEY,
-      });
-      model = openai('gpt-4o-mini');
-    } else {
-      return NextResponse.json({ error: 'No API key configured' }, { status: 400 });
-    }
+    const model = createModel(openaiKey, geminiKey);
 
     const summaryPrompt = `You are an expert knowledge extractor and summarizer. 
 Analyze the following transcript from a YouTube video titled "${title || 'Untitled video'}".

@@ -8,10 +8,13 @@ Product: Automated study tool with flashcard generation, spaced repetition, AI g
 npm run dev      # Development server at http://localhost:3000
 npm run build    # Production build
 npm run start   # Start production server
-npm run lint    # ESLint check
+npm run lint     # ESLint check (includes TypeScript validation)
 ```
 
-Note: No separate typecheck command—ESLint handles TypeScript validation in this setup.
+## Key Quirks
+
+- **Hydration**: Store uses `loadingState` placeholder until localStorage hydrates—required to avoid "NaN" attribute errors
+- **PDF extraction**: Uses python3 subprocess via `child_process.spawn`, not native JS libraries (Next.js worker bundling incompatibility)
 
 ## Key Files
 

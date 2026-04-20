@@ -1,7 +1,6 @@
 import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
+import { createModel } from '@/lib/ai';
 
 export async function POST(req: Request) {
   try {
@@ -16,24 +15,7 @@ export async function POST(req: Request) {
       questionType,
     } = body;
 
-    let model;
-    
-    if (geminiKey || process.env.GEMINI_API_KEY) {
-      const google = createGoogleGenerativeAI({
-        apiKey: geminiKey || process.env.GEMINI_API_KEY,
-      });
-      model = google('gemini-2.5-flash-lite');
-    } else if (openaiKey || process.env.OPENAI_API_KEY) {
-      const openai = createOpenAI({
-        apiKey: openaiKey || process.env.OPENAI_API_KEY,
-      });
-      model = openai('gpt-4o-mini');
-    } else {
-      return NextResponse.json(
-        { error: 'No API key provided. Please configure an API key in settings.' },
-        { status: 401 }
-      );
-    }
+    const model = createModel(openaiKey, geminiKey);
 
     // Grading mode: evaluate user's written answer
     if (questionType === 'written' || questionType === 'short' || userAnswer) {
